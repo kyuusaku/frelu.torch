@@ -50,13 +50,17 @@ for epoch = startEpoch, opt.nEpochs do
 
    -- Run model on validation set
    local testTop1, testTop5 = trainer:test(epoch, valLoader)
+   print((' * Epoch # %d     train-top1: %7.3f  train-top5: %7.3f  test-top1: %7.3f  test-top5: %7.3f\n'):format(
+      epoch, trainTop1, trainTop5, testTop1, testTop5))
 
    local bestModel = false
    if testTop1 < bestTop1 then
       bestModel = true
       bestTop1 = testTop1
       bestTop5 = testTop5
-      print(' * Best model ', testTop1, testTop5)
+      print(' ! Best model ', testTop1, testTop5)
+   else
+      print(' ? Best model ', bestTop1, bestTop5)
    end
 
    checkpoints.save(epoch, model, trainer.optimState, bestModel, opt)
