@@ -14,6 +14,8 @@ require 'nn'
 require 'cunn'
 require 'cudnn'
 
+PELU = require './PELU/PELU_fast'
+
 local M = {}
 
 function M.setup(opt, checkpoint)
@@ -87,6 +89,15 @@ function M.setup(opt, checkpoint)
          :add(model, gpus)
          :threads(function()
             local cudnn = require 'cudnn'
+            require './models/glu/NewReshape'
+--            require './models/glu/ConstrainedMul'
+            require './models/glu/GLU'
+            require './models/glu/SReLU'
+            require './models/glu/PSReLU'
+            require './models/glu/MyAdd'
+            require './models/glu/MyMul'
+            require './models/PELU/ConstrainedDiv'
+            require './models/PELU/ConstrainedMul'
             cudnn.fastest, cudnn.benchmark = fastest, benchmark
          end)
       dpt.gradInput = nil
