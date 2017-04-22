@@ -1,10 +1,11 @@
 local MyMul, parent = torch.class('nn.MyMul', 'nn.Module')
 
-function MyMul:__init(val)
+function MyMul:__init(val, inplace)
    parent.__init(self)
 
    self.weight = torch.Tensor(1)
    self.gradWeight = torch.Tensor(1)
+   self.inplace = inplace or false
 
    self:reset(val)
 end
@@ -15,14 +16,23 @@ function MyMul:reset(val)
 end
 
 function MyMul:updateOutput(input)
-   self.output:resizeAs(input):copy(input);
+   if self.inplace then
+      self.output = input
+   else
+      self.output:resizeAs(input):copy(input);
+   end
    self.output:mul(self.weight[1]);
    return self.output
 end
 
 function MyMul:updateGradInput(input, gradOutput)
-   self.gradInput:resizeAs(input):zero()
-   self.gradInput:add(self.weight[1], gradOutput)
+   if self.inplace then
+      self.gradInput = gradOutput
+      self.gradInput:mul(self.weight[1])
+   else
+      self.gradInput:resizeAs(input):zero()
+      self.gradInput:add(self.weight[1], gradOutput)
+   end
    return self.gradInput
 end
 
