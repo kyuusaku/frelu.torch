@@ -12,20 +12,6 @@
 local nn = require 'nn'
 require 'cunn'
 
---local Convolution = nn.SpatialConvolution
---[[
-local function Convolution(nInputPlane, nOutputPlane,
-                           kW, kH, dW, dH, padW, padH, groups)
-   local conv = cudnn.SpatialConvolution(nInputPlane, nOutputPlane,          
-                                         kW, kH, dW, dH, padW, padH, groups)
-   -- set deterministic algorithm
-   conv:setMode('CUDNN_CONVOLUTION_FWD_ALGO_GEMM',
-                'CUDNN_CONVOLUTION_BWD_DATA_ALGO_1',
-                'CUDNN_CONVOLUTION_BWD_FILTER_ALGO_1')
-   return conv
-end]]
---local Avg = nn.SpatialAveragePooling
---local ReLU = nn.ReLU
 local Convolution = cudnn.SpatialConvolution
 local Avg = cudnn.SpatialAveragePooling
 local ReLU = cudnn.ReLU

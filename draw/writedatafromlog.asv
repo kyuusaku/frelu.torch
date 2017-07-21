@@ -1,0 +1,13 @@
+
+
+path = 'log/';
+network = 'pelu-smallnet';
+act = 'elu';
+filename = [network '-' act '-seed' num2str(0) '.log'];
+data = readlog(filename);
+for i = 1:5
+end
+train_str=['Train[' num2str(min(data(:,2))) ']'];
+test_str=['Test [' num2str(min(data(:,4))) ']'];
+plot(data(:,1),data(:,2),color,'LineWidth',1,'LineStyle','--','DisplayName',train_str);
+plot(data(:,1),data(:,4),color,'LineWidth',2,'LineStyle','-','DisplayName',test_str);

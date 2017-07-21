@@ -3,7 +3,7 @@ require './NewReshape'
 require './MyMul'
 require './MyAdd'
 
-function MyWELU(dimension)
+function MyWELU(dimension, isLinear)
    local function MyScale(m,a)
       local s = nn.Sequential()
       s:add(nn.MyMul(m))
@@ -18,12 +18,25 @@ function MyWELU(dimension)
       return d
    end
 
+   if isLinear then
+      return nn.Sequential()
+         :add(nn.NewReshape(1,-1,1))
+         :add(MulLinear())
+         :add(nn.ConcatTable()
+            :add(nn.Identity())
+            :add(nn.SpatialSoftMax()))
+         :add(nn.CMulTable())
+         :add(nn.Sum(2))
+         :add(nn.Unsqueeze(2))
+         :add(nn.NewReshape(dimension))
+   end
+
    return nn.Sequential()
       :add(nn.NewReshape(1,-1,0))
       :add(MulLinear())
       :add(nn.ConcatTable()
-	 :add(nn.Identity())
-	 :add(nn.SpatialSoftMax()))
+         :add(nn.Identity())
+         :add(nn.SpatialSoftMax()))
       :add(nn.CMulTable())
       :add(nn.Sum(2))
       :add(nn.Unsqueeze(2))

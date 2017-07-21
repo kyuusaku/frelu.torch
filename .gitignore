@@ -1,4 +1,8 @@
 gen/
+best_models/
+log/
+draw/log/
+draw/dat/
 libnccl.so
 model_best.t7
 checkpoints

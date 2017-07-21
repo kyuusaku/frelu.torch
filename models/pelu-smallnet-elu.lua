@@ -28,7 +28,8 @@ local function createModel(opt)
    local function ConvInit(name)   
       for k,v in pairs(model:findModules(name)) do
          local n = v.kW*v.kH*v.nOutputPlane
-         v.weight:normal(0,math.sqrt(2/n))
+--         v.weight:normal(0,math.sqrt(2/n))
+         v.weight:normal(0,math.sqrt(1/n))
          if cudnn.version >= 4000 then
             v.bias = nil
             v.gradBias = nil

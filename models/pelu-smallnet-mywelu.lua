@@ -9,7 +9,7 @@ local Dropout = nn.Dropout
 local function convblock(ninput, noutput)
    return nn.Sequential()
       :add(Convolution(ninput,noutput,3,3,1,1,1,1))
-      :add(MyWELU(noutput))
+      :add(MyWELU(noutput, false))
       :add(Max(2,2,2,2))
       :add(Dropout(0.2))
 end
@@ -21,7 +21,7 @@ local function createModel(opt)
    model:add(convblock(64,128)) -- 4x4
    model:add(nn.View(-1):setNumInputDims(3))
    model:add(nn.Linear(2048,512))
-   model:add(MyWELU(512))
+   model:add(MyWELU(512, true))
    model:add(Dropout(0.5))
    model:add(nn.Linear(512,100))
    

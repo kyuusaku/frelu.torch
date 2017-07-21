@@ -90,12 +90,13 @@ function M.setup(opt, checkpoint)
          :threads(function()
             local cudnn = require 'cudnn'
             require './models/glu/NewReshape'
---            require './models/glu/ConstrainedMul'
+            require './models/glu/MyConstrainedMul'
             require './models/glu/GLU'
             require './models/glu/SReLU'
             require './models/glu/PSReLU'
             require './models/glu/MyAdd'
             require './models/glu/MyMul'
+            require './models/glu/BS'
             require './models/PELU/ConstrainedDiv'
             require './models/PELU/ConstrainedMul'
             cudnn.fastest, cudnn.benchmark = fastest, benchmark

@@ -49,7 +49,10 @@ local function createModel(opt)
 
    ConvInit('cudnn.SpatialConvolution')
    ConvInit('nn.SpatialConvolution')
+   BNInit('fbnn.SpatialBatchNormalization')
+   BNInit('cudnn.SpatialBatchNormalization')
    BNInit('nn.SpatialBatchNormalization')
+   BNInit('nn.BatchNormalization')
    for k,v in pairs(model:findModules('nn.Linear')) do
       v.bias:zero()
    end
