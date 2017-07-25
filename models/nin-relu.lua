@@ -78,12 +78,12 @@ local function createModel(opt)
       model:add(Block(3,192,5,5,1,1,2,2)) -- conv1
       model:add(Block(192,160,1,1)) -- cccp1
       model:add(Block(160,96,1,1)) -- cccp2
-      model:add(Max(3,3,2,2)) -- pool1
+      model:add(Max(3,3,2,2):ceil()) -- pool1
       model:add(Dropout(0.5)) -- drop3
       model:add(Block(96,192,5,5,1,1,2,2)) -- conv2
       model:add(Block(192,192,1,1)) -- cccp3
       model:add(Block(192,192,1,1)) -- cccp4
-      model:add(Avg(3,3,2,2)) -- pool2
+      model:add(Avg(3,3,2,2):ceil()) -- pool2
       model:add(Dropout(0.5)) -- drop6
       model:add(Block(192,192,3,3,1,1,1,1)) -- conv3
       model:add(Block(192,192,1,1)) -- cccp5
