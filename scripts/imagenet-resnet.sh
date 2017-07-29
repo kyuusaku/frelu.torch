@@ -1,11 +1,10 @@
-export CUDA_VISIBLE_DEVICES=$5
+export CUDA_VISIBLE_DEVICES=$4
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/nccl/build/lib
 
 set -x
 set -e
 export PYTHONUNBUFFERED="True"
 
-LOG=./log/imagenet/$1.log
-th main.lua -netType $1 -depth 18 -nGPU 4 -nThreads 8 -batchSize 256 -data [imagenet-folder]
-th main.lua -dataset $1 -nGPU $4 -batchSize 128 -netType $2 -nEpochs 200 -manualSeed $3 \
+LOG=./log/imagenet/$1-$2.log
+th main.lua -netType $1 -depth $2 -nGPU $3 -nThreads $5 -batchSize 256 -data /home/lab/Dataset/ImageNet/ -save checkpoints-imagenet \
 2>&1 | tee -i $LOG
