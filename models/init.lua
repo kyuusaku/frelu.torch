@@ -15,13 +15,14 @@ require 'cunn'
 require 'cudnn'
 
 PELU = require './PELU/PELU_fast'
-PosSReLU = require './glu/PosSReLU'
+
 
 local M = {}
 
 function M.setup(opt, checkpoint)
    local model
    if checkpoint then
+      PosSReLU = require './glu/PosSReLU'
       local modelPath = paths.concat(opt.resume, checkpoint.modelFile)
       assert(paths.filep(modelPath), 'Saved model not found: ' .. modelPath)
       print('=> Resuming model from ' .. modelPath)
