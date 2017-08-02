@@ -17,6 +17,23 @@ local Trainer = torch.class('resnet.Trainer', M)
 function Trainer:__init(model, criterion, opt, optimState)
    self.model = model
    self.criterion = criterion
+   -- create learning rate vector
+   local model_copy = self.model:clone()
+   local params, _ = model_copy:getParameters()
+   params:fill(1.0)
+   local function setRate(model_copy, name, value)   
+       for k,v in pairs(model_copy:findModules(name)) do
+           if v.weight ~= nil then
+               v.weight:fill(value)
+           end
+           if v.bias ~= nil then
+               v.bias:fill(value)
+           end
+       end
+   end
+   setRate(model_copy, 'nn.MyAdd', 0.1)
+   self.learningRates = params:clone()
+   --
    self.optimState = optimState or {
       learningRate = opt.LR,
       learningRateDecay = 0.0,
@@ -32,6 +49,7 @@ end
 function Trainer:train(epoch, dataloader)
    -- Trains the model for a single epoch
    self.optimState.learningRate = self:learningRate(epoch)
+   self.optimState.learningRates = self.learningRates*self.optimState.learningRate
 
    local timer = torch.Timer()
    local dataTimer = torch.Timer()
