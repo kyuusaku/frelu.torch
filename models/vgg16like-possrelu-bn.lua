@@ -95,6 +95,7 @@ local function createModel(opt)
       model:add(Dropout(0.5))
       model:add(nn.View(-1):setNumInputDims(3))
       model:add(nn.Linear(512,100))
+      model:add(nn.BatchNormalization(100))
    else
       error('invalid dataset: ' .. opt.dataset)
    end
