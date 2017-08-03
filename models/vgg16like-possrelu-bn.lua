@@ -73,7 +73,7 @@ local function createModel(opt)
       model:add(Dropout(0.5))
       model:add(nn.View(-1):setNumInputDims(3))
       model:add(nn.Linear(512,10)) 
-      model:add(nn.BatchNormalization(10))     
+      -- model:add(nn.BatchNormalization(10))     
    elseif opt.dataset == 'cifar100' then
       -- Model type specifies number of layers for CIFAR-100 model
       -- https://github.com/mavenlin/cuda-convnet/blob/master/NIN/cifar-100_def
@@ -95,7 +95,7 @@ local function createModel(opt)
       model:add(Dropout(0.5))
       model:add(nn.View(-1):setNumInputDims(3))
       model:add(nn.Linear(512,100))
-      model:add(nn.BatchNormalization(100))
+      -- model:add(nn.BatchNormalization(100))
    else
       error('invalid dataset: ' .. opt.dataset)
    end

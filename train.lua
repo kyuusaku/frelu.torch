@@ -190,19 +190,19 @@ function Trainer:learningRates(epoch)
    local model_copy = self.model:clone()
    local params, _ = model_copy:getParameters()
    params:fill(1.0)
-   -- if decay == 0 then
-   local function setRate(model_copy, name, value)   
-      for k,v in pairs(model_copy:findModules(name)) do
-         if v.weight ~= nil then
-            v.weight:fill(value)
-         end
-         if v.bias ~= nil then
-            v.bias:fill(value)
+   if decay == 0 then
+      local function setRate(model_copy, name, value)   
+         for k,v in pairs(model_copy:findModules(name)) do
+            if v.weight ~= nil then
+               v.weight:fill(value)
+            end
+            if v.bias ~= nil then
+               v.bias:fill(value)
+            end
          end
       end
+      setRate(model_copy, 'nn.MyAdd', 0.1)
    end
-   setRate(model_copy, 'nn.MyAdd', 0.1)
-   -- end
    return params
 end
 
