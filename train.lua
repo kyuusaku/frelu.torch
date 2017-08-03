@@ -31,7 +31,7 @@ end
 
 function Trainer:train(epoch, dataloader)
    -- Trains the model for a single epoch
-   -- self.optimState.learningRate = self:learningRate(epoch)
+   self.optimState.learningRate = self:learningRate(epoch)
    self.optimState.learningRates = self:learningRates(epoch)
 
    local timer = torch.Timer()
@@ -203,7 +203,7 @@ function Trainer:learningRates(epoch)
       end
       setRate(model_copy, 'nn.MyAdd', 0.1)
    end
-   return self.opt.LR * math.pow(0.1, decay) * params
+   return params
 end
 
 return M.Trainer
