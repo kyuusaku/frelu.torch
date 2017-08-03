@@ -17,23 +17,6 @@ local Trainer = torch.class('resnet.Trainer', M)
 function Trainer:__init(model, criterion, opt, optimState)
    self.model = model
    self.criterion = criterion
-   -- create learning rate vector
-   local model_copy = self.model:clone()
-   local params, _ = model_copy:getParameters()
-   params:fill(1.0)
-   local function setRate(model_copy, name, value)   
-       for k,v in pairs(model_copy:findModules(name)) do
-           if v.weight ~= nil then
-               v.weight:fill(value)
-           end
-           if v.bias ~= nil then
-               v.bias:fill(value)
-           end
-       end
-   end
-   setRate(model_copy, 'nn.MyAdd', 0.1)
-   self.learningRates = params:clone()
-   --
    self.optimState = optimState or {
       learningRate = opt.LR,
       learningRateDecay = 0.0,
@@ -48,8 +31,8 @@ end
 
 function Trainer:train(epoch, dataloader)
    -- Trains the model for a single epoch
-   self.optimState.learningRate = self:learningRate(epoch)
-   self.optimState.learningRates = self.learningRates*self.optimState.learningRate
+   -- self.optimState.learningRate = self:learningRate(epoch)
+   self.optimState.learningRates = self:learningRates(epoch)
 
    local timer = torch.Timer()
    local dataTimer = torch.Timer()
@@ -191,6 +174,36 @@ function Trainer:learningRate(epoch)
       decay = epoch >= 122 and 2 or epoch >= 81 and 1 or 0
    end
    return self.opt.LR * math.pow(0.1, decay)
+end
+
+function Trainer:learningRates(epoch)
+   -- Training schedule
+   local decay = 0
+   if self.opt.dataset == 'imagenet' then
+      decay = math.floor((epoch - 1) / 30)
+   elseif self.opt.dataset == 'cifar10' then
+      decay = epoch >= 122 and 2 or epoch >= 81 and 1 or 0
+   elseif self.opt.dataset == 'cifar100' then
+      decay = epoch >= 122 and 2 or epoch >= 81 and 1 or 0
+   end
+   -- create learning rate vector
+   local model_copy = self.model:clone()
+   local params, _ = model_copy:getParameters()
+   params:fill(1.0)
+   if decay == 0 then
+      local function setRate(model_copy, name, value)   
+         for k,v in pairs(model_copy:findModules(name)) do
+            if v.weight ~= nil then
+               v.weight:fill(value)
+            end
+            if v.bias ~= nil then
+               v.bias:fill(value)
+            end
+         end
+      end
+      setRate(model_copy, 'nn.MyAdd', 0.1)
+   end
+   return self.opt.LR * math.pow(0.1, decay) * params
 end
 
 return M.Trainer
