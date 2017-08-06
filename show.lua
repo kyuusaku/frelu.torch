@@ -24,7 +24,7 @@ local function show(model, name)
     end
 end
 
-local opt = opts.parse(arg)
+local opt = parse(arg)
 
 local model = torch.load(opt.model)
 
