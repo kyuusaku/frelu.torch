@@ -28,4 +28,6 @@ local opt = parse(arg)
 
 local model = torch.load(opt.model)
 
+print(model)
+
 show(model,'nn.MyAdd')
