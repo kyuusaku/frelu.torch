@@ -14,15 +14,13 @@ require 'nn'
 require 'cunn'
 require 'cudnn'
 
-PELU = require './PELU/PELU_fast'
-
 
 local M = {}
 
 function M.setup(opt, checkpoint)
    local model
    if checkpoint then
-      PosSReLU = require './glu/PosSReLU'
+      PosSReLU = require './frelu/PosSReLU'
       local modelPath = paths.concat(opt.resume, checkpoint.modelFile)
       assert(paths.filep(modelPath), 'Saved model not found: ' .. modelPath)
       print('=> Resuming model from ' .. modelPath)
@@ -91,16 +89,7 @@ function M.setup(opt, checkpoint)
          :add(model, gpus)
          :threads(function()
             local cudnn = require 'cudnn'
-            require './models/glu/NewReshape'
-            require './models/glu/MyConstrainedMul'
-            require './models/glu/GLU'
-            require './models/glu/SReLU'
-            require './models/glu/PSReLU'
-            require './models/glu/MyAdd'
-            require './models/glu/MyMul'
-            require './models/glu/BS'
-            require './models/PELU/ConstrainedDiv'
-            require './models/PELU/ConstrainedMul'
+            require './models/frelu/MyAdd'
             cudnn.fastest, cudnn.benchmark = fastest, benchmark
          end)
       dpt.gradInput = nil

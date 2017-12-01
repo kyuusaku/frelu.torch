@@ -1,4 +1,4 @@
-export CUDA_VISIBLE_DEVICES=7
+export CUDA_VISIBLE_DEVICES=$1
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/nccl/build/lib
 
 set -x

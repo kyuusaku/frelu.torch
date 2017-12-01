@@ -3,7 +3,7 @@ require 'cunn'
 
 local Convolution = cudnn.SpatialConvolution
 local Max = nn.SpatialMaxPooling
-local PosSReLU = require './glu/PosSReLU'
+local PosSReLU = require './frelu/PosSReLU'
 local Dropout = nn.Dropout
 
 local function convblock(ninput, noutput)
