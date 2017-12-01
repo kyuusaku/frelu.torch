@@ -1,3 +1,9 @@
+Todo list:
+[x] clean code
+[x] mnist experiment
+[x] 
+
+
 ResNet training in Torch
 ============================
 

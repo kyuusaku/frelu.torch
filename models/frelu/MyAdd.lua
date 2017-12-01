@@ -56,6 +56,21 @@ function MyAdd:updateGradInput(input, gradOutput)
    if self.gradInput then
       if self.inplace then
          self.gradInput = gradOutput
+         -- restore previous input value
+         if self.size == 1 then
+            input:add(-self.bias[1])
+         else
+            local iDim = input:dim()
+            if self.numInputDims == iDim then
+               for i = 1, self.size do
+                  input[i]:add(-self.bias[i])
+               end
+            else
+               for i = 1, self.size do
+                  input[{{},i}]:add(-self.bias[i])
+               end
+            end
+         end
       else
          self.gradInput:resizeAs(gradOutput):copy(gradOutput)
       end 
