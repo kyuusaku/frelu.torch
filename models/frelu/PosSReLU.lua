@@ -13,7 +13,7 @@ function PosSReLU(n, numInputDims, val, constant, inplace)
 		-- https://github.com/torch/nn/blob/master/doc/transfer.md#addconstant
 		m:add(nn.AddConstant(val, inplace))
 	else
-		m:add(nn.MyAdd(n, val, false, numInputDims)) -- must be false when using with ReLU inplace
+		m:add(nn.MyAdd(n, val, inplace, numInputDims)) -- must be false when using with ReLU inplace
 
 	return m
 end

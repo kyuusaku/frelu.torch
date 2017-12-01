@@ -1,7 +1,20 @@
 Todo list:
-[x] clean code
-[x] mnist experiment
-[x] 
+-[x] clean code
+-[x] mnist experiment
+-[x] 
+
+
+Model files table :
+| File                | Network                | ACT   |
+| ------------------- | ---------------------- | ----- |
+| resnet-possrelu     | Ori. bottleneck        | FReLU |
+| elu-resnet-possrelu | w/o ACT after addition | FReLU |
+
+| ResNet-34     | 26.73       | 8.74        |
+| ResNet-50     | 24.01       | 7.02        |
+| ResNet-101    | 22.44       | 6.21        |
+| ResNet-152    | 22.16       | 6.16        |
+| ResNet-200    | 21.66       | 5.79        |
 
 
 ResNet training in Torch
