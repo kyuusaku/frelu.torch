@@ -14,6 +14,7 @@ function PosSReLU(n, numInputDims, val, constant, inplace)
 		m:add(nn.AddConstant(val, inplace))
 	else
 		m:add(nn.MyAdd(n, val, inplace, numInputDims)) -- must be false when using with ReLU inplace
+	end
 
 	return m
 end
