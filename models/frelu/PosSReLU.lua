@@ -5,7 +5,9 @@ function PosSReLU(n, numInputDims, val, constant, inplace)
 	n = n or 1
 	val = val or -1
 	constant = constant or false
-	inplace = inplace or true
+	if inplace == nil then
+            inplace = true
+        end
 
 	local m = nn.Sequential()
 	m:add(nn.ReLU(true))

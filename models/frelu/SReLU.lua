@@ -1,7 +1,7 @@
 local SReLU, Parent = torch.class('nn.SReLU', 'nn.Module')
 
 function SReLU:__init(val, inplace)
-    parent.__init(self)
+    Parent.__init(self)
     
     self.size = 1;
     self.bias = torch.Tensor(self.size)
