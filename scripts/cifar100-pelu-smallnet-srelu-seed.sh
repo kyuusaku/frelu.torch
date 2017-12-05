@@ -7,8 +7,8 @@ export PYTHONUNBUFFERED="True"
 
 for (( i=0; i<5; i++ ))  
 do  
-LOG=./log/cifar100/pelu-smallnet-srelu-seed$i.log
-th main.lua -dataset cifar100 -nGPU 1 -batchSize 128 -netType pelu-smallnet-srelu -nEpochs 200 -LR 0.01 -manualSeed $i \
+LOG=./log/cifar100/pelu-smallnet-srelu-bn-seed$i.log
+th main.lua -dataset cifar100 -nGPU 1 -batchSize 128 -netType pelu-smallnet-srelu-bn -nEpochs 200 -LR 0.01 -manualSeed $i \
 2>&1 | tee -i $LOG
 done
 
