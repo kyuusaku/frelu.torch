@@ -1,7 +1,0 @@
-/home/lab-qiu.suo/devel/my.fb.resnet.torch/models/newLayers/build/CMakeFiles/install.dir
-/home/lab-qiu.suo/devel/my.fb.resnet.torch/models/newLayers/build/CMakeFiles/list_install_components.dir
-/home/lab-qiu.suo/devel/my.fb.resnet.torch/models/newLayers/build/CMakeFiles/rebuild_cache.dir
-/home/lab-qiu.suo/devel/my.fb.resnet.torch/models/newLayers/build/CMakeFiles/gwap.dir
-/home/lab-qiu.suo/devel/my.fb.resnet.torch/models/newLayers/build/CMakeFiles/install/strip.dir
-/home/lab-qiu.suo/devel/my.fb.resnet.torch/models/newLayers/build/CMakeFiles/install/local.dir
-/home/lab-qiu.suo/devel/my.fb.resnet.torch/models/newLayers/build/CMakeFiles/edit_cache.dir

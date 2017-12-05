@@ -1,1 +1,0 @@
-/home/lab-qiu.suo/devel/lib/torch/install/lib/luarocks/rocks/gwap/scm-1/lib/libgwap.so
