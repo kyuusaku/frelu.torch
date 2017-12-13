@@ -2,7 +2,7 @@ require 'torch'
 require 'nn'
 require 'cunn'
 require 'cudnn'
-PosSReLU = require './models/glu/PosSReLU'
+PosSReLU = require './models/frelu/PosSReLU'
 
 
 
