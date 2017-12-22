@@ -151,7 +151,7 @@ eval = function(dataset, batch_size)
     for i = 1,dataset.size,batch_size do
         local size = math.min(i + batch_size, dataset.size) - i
         local inputs = dataset.data[{{i,i+size-1}}]:cuda()
-        local targets = dataset.label[{{i,i+size-1}}]:long()
+        local targets = dataset.label[{{i,i+size-1}}]:long():cuda()
         local outputs = model:forward(inputs)
         local _, indices = torch.max(outputs, 2)
         indices:add(-1)
