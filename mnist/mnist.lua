@@ -2,6 +2,7 @@ require 'torch'
 require 'nn'  
 require 'optim'  
 require 'cunn'
+require 'cudnn'
 
 print('Read data set')
 mnist = require 'mnist' 
