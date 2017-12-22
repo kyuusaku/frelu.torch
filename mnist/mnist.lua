@@ -1,6 +1,7 @@
 require 'torch'  
 require 'nn'  
 require 'optim'  
+require 'cunn'
 
 print('Read data set')
 mnist = require 'mnist' 
@@ -30,37 +31,56 @@ trainset.data[{ {}, {}, {}  }]:div(stdv)
 testset.data[{ {}, {}, {}  }]:add(-mean)
 testset.data[{ {}, {}, {}  }]:div(stdv)
 
-create_model = function(ACT)
+local Convolution = cudnn.SpatialConvolution
+local Max = nn.SpatialMaxPooling
+local ReLU = cudnn.ReLU
+convblock = function(ninput, noutput)
+   return nn.Sequential()
+      :add(Convolution(ninput,noutput,5,5,1,1,2,2))
+      :add(ReLU(true))
+      :add(Convolution(noutput,noutput,5,5,1,1,2,2))
+      :add(ReLU(true))
+      :add(Max(2,2,2,2,0,0))
+end
+
+create_model = function()
     local net = nn.Sequential()
-    net:add(nn.View(-1,1,28,28))
-    net:add(nn.SpatialConvolution(1,32,5,5,1,1,2,2))
-    net:add(ACT)
-    net:add(nn.SpatialConvolution(32,32,5,5,1,1,2,2))
-    net:add(ACT)
-    net:add(nn.SpatialMaxPooling(2,2,2,2,0,0))
-    net:add(nn.SpatialConvolution(32,64,5,5,1,1,2,2))
-    net:add(ACT)
-    net:add(nn.SpatialConvolution(64,64,5,5,1,1,2,2))
-    net:add(ACT)
-    net:add(nn.SpatialMaxPooling(2,2,2,2,0,0))
-    net:add(nn.SpatialConvolution(64,128,5,5,1,1,2,2))
-    net:add(ACT)
-    net:add(nn.SpatialConvolution(128,128,5,5,1,1,2,2))
-    net:add(ACT)
-    net:add(nn.SpatialMaxPooling(2,2,2,2,0,0))
-    net:add(nn.View(-1):setNumInputDims(3))
-    net:add(nn.Linear(3*3*128,2))
-    net:add(ACT)
+    net:add(convblock(ACT,1,32))
+    net:add(convblock(ACT,32,64))
+    net:add(convblock(ACT,64,128))
+    net:add(nn.View(3*3*128))
+    net:add(nn.Linear(3*3*128,10))
+    net:add(ReLU(true))
     net:add(nn.Linear(2,10))
+
+    local function ConvInit(name)   
+      for k,v in pairs(model:findModules(name)) do
+         local n = v.kW*v.kH*v.nOutputPlane
+         v.weight:normal(0,math.sqrt(2/n))
+         if cudnn.version >= 4000 then
+            v.bias = nil
+            v.gradBias = nil
+         else
+            v.bias:zero()
+         end
+      end
+    end
+
+    ConvInit('cudnn.SpatialConvolution')
+    ConvInit('nn.SpatialConvolution')
+    for k,v in pairs(model:findModules('nn.Linear')) do
+      v.bias:zero()
+    end
+    net:cuda()
+
     return net
 end
 
 print('Create model')
-model = create_model(nn.ReLU(True))
+model = create_model()
 print(model)
 criterion = nn.CrossEntropyCriterion()
 
-model = require('weight-init')(model, 'xavier') 
 
 --[[ use optim package to train the network.
 optim contains several optimization algorithms.
@@ -91,13 +111,13 @@ step = function(batch_size)
     for t = 1,trainset.size,batch_size do
         -- setup inputs and targets for this mini-batch
         local size = math.min(t + batch_size, trainset.size) - t
-        local inputs = torch.Tensor(size, 28, 28)
-        local targets = torch.Tensor(size)
+        local inputs = torch.CudaTensor(size, 1, 28, 28)
+        local targets = torch.CudaTensor(size)
         for i = 1,size do
             local input = trainset.data[shuffle[i+t-1]]
             local target = trainset.label[shuffle[i+t-1]]
-            inputs[i] = input
-            targets[i] = target
+            inputs[i]:copy(input:view(1, 28, 28))
+            targets[i]:copy(target)
         end
         targets:add(1)
         -- 
@@ -106,8 +126,10 @@ step = function(batch_size)
             if x ~= x_new then x:copy(x_new) end 
             dl_dx:zero()
             -- perform mini-batch gradient descent
-            local loss = criterion:forward(model:forward(inputs), targets)
-            model:backward(inputs, criterion:backward(model.output, targets))
+            model:forward(inputs)
+            local loss = criterion:forward(model.output, targets)
+            criterion:backward(model.output, targets)
+            model:backward(inputs, criterion.gradInput)
             -- return loss & accumulation of the gradients
             return loss, dl_dx
         end
