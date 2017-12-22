@@ -117,8 +117,8 @@ step = function(batch_size)
         for i = 1,size do
             local input = trainset.data[shuffle[i+t-1]]
             local target = trainset.label[shuffle[i+t-1]]
-            inputs[i]:copy(input:view(1, 28, 28))
-            targets[i]:copy(target)
+            inputs[i] = input:view(1, 28, 28)):cuda()
+            targets[i] = target:cuda()
         end
         targets:add(1)
         -- 
