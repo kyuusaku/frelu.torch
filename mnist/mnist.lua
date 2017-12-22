@@ -46,6 +46,7 @@ end
 
 create_model = function()
     local net = nn.Sequential()
+    net:add(nn.Reshape(1,28,28))
     net:add(convblock(1,32))
     net:add(convblock(32,64))
     net:add(convblock(64,128))
@@ -112,12 +113,12 @@ step = function(batch_size)
     for t = 1,trainset.size,batch_size do
         -- setup inputs and targets for this mini-batch
         local size = math.min(t + batch_size, trainset.size) - t
-        local inputs = torch.CudaTensor(size, 1, 28, 28)
+        local inputs = torch.CudaTensor(size, 28, 28)
         local targets = torch.CudaTensor(size)
         for i = 1,size do
             local input = trainset.data[shuffle[i+t-1]]
             local target = trainset.label[shuffle[i+t-1]]
-            inputs[i] = input:view(1, 1, 28, 28):cuda()
+            inputs[i] = input:cuda()
             targets[i] = target
         end
         targets:add(1)
