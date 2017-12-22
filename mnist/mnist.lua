@@ -46,9 +46,9 @@ end
 
 create_model = function()
     local net = nn.Sequential()
-    net:add(convblock(ACT,1,32))
-    net:add(convblock(ACT,32,64))
-    net:add(convblock(ACT,64,128))
+    net:add(convblock(1,32))
+    net:add(convblock(32,64))
+    net:add(convblock(64,128))
     net:add(nn.View(3*3*128))
     net:add(nn.Linear(3*3*128,10))
     net:add(ReLU(true))
