@@ -80,7 +80,7 @@ end
 print('Create model')
 model = create_model()
 print(model)
-criterion = nn.CrossEntropyCriterion()
+criterion = nn.CrossEntropyCriterion():cuda()
 
 
 --[[ use optim package to train the network.
