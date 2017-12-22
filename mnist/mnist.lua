@@ -29,6 +29,8 @@ trainset.data[{ {}, {}, {}  }]:add(-mean)
 stdv = trainset.data[{ {}, {}, {}  }]:std()
 trainset.data[{ {}, {}, {}  }]:div(stdv)
 
+validationset.data[{ {}, {}, {} }]:add(-mean)
+validationset.data[{ {}, {}, {} }]:div(stdv)
 testset.data[{ {}, {}, {}  }]:add(-mean)
 testset.data[{ {}, {}, {}  }]:div(stdv)
 
@@ -39,8 +41,8 @@ convblock = function(ninput, noutput)
    return nn.Sequential()
       :add(Convolution(ninput,noutput,5,5,1,1,2,2))
       :add(ReLU(true))
-      :add(Convolution(noutput,noutput,5,5,1,1,2,2))
-      :add(ReLU(true))
+--      :add(Convolution(noutput,noutput,5,5,1,1,2,2))
+--      :add(ReLU(true))
       :add(Max(2,2,2,2,0,0))
 end
 
@@ -93,10 +95,10 @@ all of these algorithms assume the same parameters:
 --]]
 
 sgd_params = {
-    learningRate = 1e-2,
-    learningRateDecay = 1e-4,
-    weightDecay = 1e-3,
-    momentum = 1e-4
+    learningRate = 0.01,
+    learningRateDecay = 0.0,
+    weightDecay = 0.0,
+    momentum = 0.9
 }
 
 --[[ flatten parameters
@@ -151,10 +153,13 @@ eval = function(dataset, batch_size)
     for i = 1,dataset.size,batch_size do
         local size = math.min(i + batch_size, dataset.size) - i
         local inputs = dataset.data[{{i,i+size-1}}]:cuda()
-        local targets = dataset.label[{{i,i+size-1}}]
+        local targets = torch.CudaLongTensor()
+        label = dataset.label[{{i,i+size-1}}]
+        targets:resize(label:size()):copy(label)
         local outputs = model:forward(inputs)
         local _, indices = torch.max(outputs, 2)
         indices:add(-1)
+        indices:double()
         local guessed_right = indices:eq(targets):sum()
         count = count + guessed_right
     end
