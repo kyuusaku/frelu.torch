@@ -55,7 +55,7 @@ create_model = function()
     net:add(nn.Linear(2,10))
 
     local function ConvInit(name)   
-      for k,v in pairs(model:findModules(name)) do
+      for k,v in pairs(net:findModules(name)) do
          local n = v.kW*v.kH*v.nOutputPlane
          v.weight:normal(0,math.sqrt(2/n))
          if cudnn.version >= 4000 then
@@ -69,7 +69,7 @@ create_model = function()
 
     ConvInit('cudnn.SpatialConvolution')
     ConvInit('nn.SpatialConvolution')
-    for k,v in pairs(model:findModules('nn.Linear')) do
+    for k,v in pairs(net:findModules('nn.Linear')) do
       v.bias:zero()
     end
     net:cuda()
