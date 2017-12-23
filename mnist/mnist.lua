@@ -59,7 +59,7 @@ create_model = function()
     local function ConvInit(name)   
       for k,v in pairs(net:findModules(name)) do
          local n = v.kW*v.kH*v.nOutputPlane
-         v.weight:normal(0,math.sqrt(1/n))
+         v.weight:normal(0,math.sqrt(2/n))
          v.bias:zero()
       end
     end
@@ -169,7 +169,7 @@ do
     for i = 1,max_iters do
         sgd_params.learningRate = learningRate(i)
         local loss = step()
-        print(string.format('Epoch: %d, learningRate: %4f, Current loss: %4f', i, sgd_params.learningRate, loss))
+        print(string.format('Epoch: %d, Current loss: %4f, learningRate: %4f', i, loss, sgd_params.learningRate))
         local accuracy = eval(testset)
         print(string.format('Accuracy on the test set: %4f', accuracy))
     end
