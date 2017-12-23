@@ -86,6 +86,7 @@ learningRate = function(epoch)
     local decay = 0
     decay = epoch >= 62 and 2 or epoch >= 40 and 1 or 0
     return base_lr * math.pow(gamma, decay)
+end
 
 sgd_params = {
     learningRate = 0.01,
