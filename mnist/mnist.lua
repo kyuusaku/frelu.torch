@@ -6,6 +6,8 @@ require 'cudnn'
 
 torch.setdefaulttensortype('torch.FloatTensor')
 
+-- Reference: https://github.com/ydwen/caffe-face/tree/caffe-face/mnist_example
+
 print('Read data set')
 mnist = require 'mnist' 
 trainset = mnist.traindataset()
@@ -38,8 +40,8 @@ convblock = function(ninput, noutput)
    return nn.Sequential()
       :add(Convolution(ninput,noutput,5,5,1,1,2,2))
       :add(ReLU(true))
---      :add(Convolution(noutput,noutput,5,5,1,1,2,2))
---      :add(ReLU(true))
+      :add(Convolution(noutput,noutput,5,5,1,1,2,2))
+      :add(ReLU(true))
       :add(Max(2,2,2,2,0,0))
 end
 
@@ -57,7 +59,7 @@ create_model = function()
     local function ConvInit(name)   
       for k,v in pairs(net:findModules(name)) do
          local n = v.kW*v.kH*v.nOutputPlane
-         v.weight:normal(0,math.sqrt(1/n))
+         v.weight:normal(0,math.sqrt(2/n))
          v.bias:zero()
       end
     end
@@ -77,14 +79,13 @@ model = create_model()
 print(model)
 criterion = nn.CrossEntropyCriterion():cuda()
 
-
---[[ use optim package to train the network.
-optim contains several optimization algorithms.
-all of these algorithms assume the same parameters:
-* a closure that computes the loss, and its gradient wrt to x, given a point x
-* a point x
-* some parameters, which are algorithm-specific
---]]
+print('Start training')
+learningRate = function(epoch)
+    local base_lr = 0.01
+    local gamma = 0.8
+    local decay = 0
+    decay = epoch >= 62 and 2 or epoch >= 40 and 1 or 0
+    return base_lr * math.pow(gamma, decay)
 
 sgd_params = {
     learningRate = 0.01,
@@ -103,7 +104,7 @@ step = function(batch_size)
     local current_loss = 0
     local count = 0
     local shuffle = torch.randperm(trainset.size)
-    batch_size = batch_size or 200
+    batch_size = batch_size or 128
     for t = 1,trainset.size,batch_size do
         -- setup inputs and targets for this mini-batch
         local size = math.min(t + batch_size, trainset.size) - t
@@ -162,22 +163,12 @@ end
 after each epoch, evaluate the accuracy on the validation dataset,
 in order to decide whether to stop
 --]]
-max_iters = 30
+max_iters = 78
 do
-    local last_accuracy = 0
-    local decreasing = 0
-    local threshold = 1
     for i = 1,max_iters do
         local loss = step()
         print(string.format('Epoch: %d Current loss: %4f', i, loss))
         local accuracy = eval(testset)
         print(string.format('Accuracy on the test set: %4f', accuracy))
-        if accuracy < last_accuracy then
-            if decreasing > threshold then break end
-            decreasing = decreasing + 1
-        else
-            decreasing = 0
-        end
-        last_accuracy = accuracy
     end
 end
