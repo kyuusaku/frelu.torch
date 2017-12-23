@@ -4,35 +4,32 @@ require 'optim'
 require 'cunn'
 require 'cudnn'
 
+torch.setdefaulttensortype('torch.FloatTensor')
+
 print('Read data set')
 mnist = require 'mnist' 
-fullset = mnist.traindataset()
+trainset = mnist.traindataset()
 testset = mnist.testdataset()
-
 trainset = {
-    size = 50000,
-    data = fullset.data[{{1,50000}}]:double(),
-    label = fullset.label[{{1,50000}}]
+    size = 60000,
+    data = trainset.data:type('torch.FloatTensor'),
+    label = trainset.label
 }
-
-validationset = {
+testset = {
     size = 10000,
-    data = fullset.data[{{50001,60000}}]:double(),
-    label = fullset.label[{{50001,60000}}]
+    data = testset.data:type('torch.FloatTensor'),
+    label = testset.label
 }
-
 print('Normalize')
-mean = {}
-stdv  = {}
-mean = trainset.data[{ {}, {}, {}}]:mean()
-trainset.data[{ {}, {}, {}  }]:add(-mean)
-stdv = trainset.data[{ {}, {}, {}  }]:std()
-trainset.data[{ {}, {}, {}  }]:div(stdv)
-
-validationset.data[{ {}, {}, {} }]:add(-mean)
-validationset.data[{ {}, {}, {} }]:div(stdv)
+mean = 127.5
+scale = 0.0078125
+trainset.data[{ {}, {}, {} }]:add(-mean)
+trainset.data[{ {}, {}, {} }]:mul(scale)
 testset.data[{ {}, {}, {}  }]:add(-mean)
-testset.data[{ {}, {}, {}  }]:div(stdv)
+testset.data[{ {}, {}, {}  }]:mul(scale)
+print(trainset)
+print(testset)
+print(testset.data[{1,{},{}}])
 
 local Convolution = cudnn.SpatialConvolution
 local Max = nn.SpatialMaxPooling
@@ -60,13 +57,8 @@ create_model = function()
     local function ConvInit(name)   
       for k,v in pairs(net:findModules(name)) do
          local n = v.kW*v.kH*v.nOutputPlane
-         v.weight:normal(0,math.sqrt(2/n))
-         if cudnn.version >= 4000 then
-            v.bias = nil
-            v.gradBias = nil
-         else
-            v.bias:zero()
-         end
+         v.weight:normal(0,math.sqrt(1/n))
+         v.bias:zero()
       end
     end
 
@@ -97,7 +89,7 @@ all of these algorithms assume the same parameters:
 sgd_params = {
     learningRate = 0.01,
     learningRateDecay = 0.0,
-    weightDecay = 0.0,
+    weightDecay = 0.0005,
     momentum = 0.9
 }
 
@@ -149,7 +141,7 @@ end
 
 eval = function(dataset, batch_size)
     local count = 0
-    batch_size = batch_size or 200
+    batch_size = batch_size or 100
     for i = 1,dataset.size,batch_size do
         local size = math.min(i + batch_size, dataset.size) - i
         local inputs = dataset.data[{{i,i+size-1}}]:cuda()
@@ -178,8 +170,8 @@ do
     for i = 1,max_iters do
         local loss = step()
         print(string.format('Epoch: %d Current loss: %4f', i, loss))
-        local accuracy = eval(validationset)
-        print(string.format('Accuracy on the validation set: %4f', accuracy))
+        local accuracy = eval(testset)
+        print(string.format('Accuracy on the test set: %4f', accuracy))
         if accuracy < last_accuracy then
             if decreasing > threshold then break end
             decreasing = decreasing + 1
@@ -189,6 +181,3 @@ do
         last_accuracy = accuracy
     end
 end
-
-testset.data = testset.data:double()
-print(string.format('Accuracy on the test set: %4f', eval(testset)))
