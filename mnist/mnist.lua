@@ -59,7 +59,7 @@ create_model = function()
     local function ConvInit(name)   
       for k,v in pairs(net:findModules(name)) do
          local n = v.kW*v.kH*v.nOutputPlane
-         v.weight:normal(0,math.sqrt(2/n))
+         v.weight:normal(0,math.sqrt(1/n))
          v.bias:zero()
       end
     end
@@ -167,8 +167,9 @@ in order to decide whether to stop
 max_iters = 78
 do
     for i = 1,max_iters do
+        sgd_params.learningRate = learningRate(i)
         local loss = step()
-        print(string.format('Epoch: %d Current loss: %4f', i, loss))
+        print(string.format('Epoch: %d, learningRate: %4f, Current loss: %4f', i, sgd_params.learningRate, loss))
         local accuracy = eval(testset)
         print(string.format('Accuracy on the test set: %4f', accuracy))
     end
