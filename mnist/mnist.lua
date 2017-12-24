@@ -5,7 +5,8 @@ require 'cunn'
 require 'cudnn'
 
 torch.setdefaulttensortype('torch.FloatTensor')
-
+torch.manualSeed(0)
+cutorch.manualSeed(0)
 -- Reference: https://github.com/ydwen/caffe-face/tree/caffe-face/mnist_example
 
 print('Read data set')
@@ -31,6 +32,7 @@ testset.data[{ {}, {}, {}  }]:add(-mean)
 testset.data[{ {}, {}, {}  }]:mul(scale)
 print(trainset)
 print(testset)
+print(trainset.data[{1,{},{}}])
 print(testset.data[{1,{},{}}])
 
 local Convolution = cudnn.SpatialConvolution
@@ -82,7 +84,7 @@ criterion = nn.CrossEntropyCriterion():cuda()
 print('Start training')
 learningRate = function(epoch)
     local base_lr = 0.01
-    local gamma = 0.8
+    local gamma = 0.1
     local decay = 0
     decay = epoch >= 62 and 2 or epoch >= 40 and 1 or 0
     return base_lr * math.pow(gamma, decay)
