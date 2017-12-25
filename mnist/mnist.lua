@@ -81,7 +81,6 @@ model = create_model()
 print(model)
 criterion = nn.CrossEntropyCriterion():cuda()
 
-print('Start training')
 learningRate = function(epoch)
     local base_lr = 0.01
     local gamma = 0.1
@@ -166,8 +165,8 @@ end
 after each epoch, evaluate the accuracy on the validation dataset,
 in order to decide whether to stop
 --]]
-max_iters = 78
-do
+train = function()
+    max_iters = 78
     for i = 1,max_iters do
         sgd_params.learningRate = learningRate(i)
         local loss = step()
@@ -175,4 +174,77 @@ do
         local accuracy = eval(testset)
         print(string.format('Accuracy on the test set: %4f', accuracy))
     end
+end
+
+deepCopy = function(tbl)
+   -- creates a copy of a network with new modules and the same tensors
+   local copy = {}
+   for k, v in pairs(tbl) do
+      if type(v) == 'table' then
+         copy[k] = deepCopy(v)
+      else
+         copy[k] = v
+      end
+   end
+   if torch.typename(tbl) then
+      torch.setmetatable(copy, torch.typename(tbl))
+   end
+   return copy
+end
+
+getEmbedding = function(m, dataset)
+    local dataSize = dataset.size
+    embeddings = torch.FloatTensor(dataSize, 2):fill(0)
+    local batch_size = 100
+    for i = 1,dataSize,batch_size do
+        local size = math.min(i + batch_size, dataSize) - i
+        local inputs = dataset.data[{{i,i+size-1}}]:cuda()
+        m:forward(inputs)
+        embeddings[{i,i+size-1}] = m:get(7).output:float()        
+    end
+    return embeddings
+end
+
+require 'gnuplot'
+gscatter = function(embeddings, labels, saveFile)
+    gnuplot.pngfigure(saveFile)
+    gnuplot.plot(
+        {embeddings[torch.eq(labels,0)], '+'},
+        {embeddings[torch.eq(labels,1)], '+'},
+        {embeddings[torch.eq(labels,2)], '+'},
+        {embeddings[torch.eq(labels,3)], '+'},
+        {embeddings[torch.eq(labels,4)], '+'},
+        {embeddings[torch.eq(labels,5)], '+'},
+        {embeddings[torch.eq(labels,6)], '+'},
+        {embeddings[torch.eq(labels,7)], '+'},
+        {embeddings[torch.eq(labels,8)], '+'},
+        {embeddings[torch.eq(labels,9)], '+'},
+    )
+    gnuplot.xlabel('Activation of the 1st neuron')
+    gnuplot.ylabel('Activation of the 2nd neuron')
+    gnuplot.plotflush()
+    gnuplot.close()
+end
+
+do
+    local modelFile = 'mnist-relu.t7'
+    if paths.filep(modelFile) then
+        modelCopy = torch.load(modelFile)
+    else
+        print('Start training')
+        train()
+        modelCopy = deepCopy(model):float():clearState()
+        print('Save model')
+        torch.save(modelFile, modelCopy)
+    end
+    
+    print('Get Embeddings')
+    modelCopy:cuda()
+    modelCopy:evaluate()
+    trainEmbedding = getEmbedding(modelCopy, trainset)
+    testEmbedding = getEmbedding(modelCopy, testset)
+
+    print('Plot Embeddings')
+    gscatter(trainEmbedding, trainset.label, 'mnist-relu-train.png')
+    gscatter(testEmbedding, testset.label, 'mnist-relu-test.png')
 end
