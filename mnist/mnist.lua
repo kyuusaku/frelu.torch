@@ -55,7 +55,7 @@ create_model = function()
     net:add(convblock(64,128))
     net:add(nn.View(3*3*128))
     net:add(nn.Linear(3*3*128,2))
-    net:add(ReLU(true))
+    net:add(ReLU(false))
     net:add(nn.Linear(2,10))
 
     local function ConvInit(name)   
@@ -200,25 +200,29 @@ getEmbedding = function(m, dataset)
         local size = math.min(i + batch_size, dataSize) - i
         local inputs = dataset.data[{{i,i+size-1}}]:cuda()
         m:forward(inputs)
-        embeddings[{i,i+size-1}] = m:get(7).output:float()        
+        embeddings[{ {i,i+size-1}, {} }] = m:get(6).output:float()        
     end
     return embeddings
 end
 
 require 'gnuplot'
 gscatter = function(embeddings, labels, saveFile)
+    local indices = torch.linspace(1, labels:size(1), labels:size(1)):long()
+    local select = function(labels, class, indices)
+        return indices[labels:eq(class)]
+    end
     gnuplot.pngfigure(saveFile)
     gnuplot.plot(
-        {embeddings[torch.eq(labels,0)], '+'},
-        {embeddings[torch.eq(labels,1)], '+'},
-        {embeddings[torch.eq(labels,2)], '+'},
-        {embeddings[torch.eq(labels,3)], '+'},
-        {embeddings[torch.eq(labels,4)], '+'},
-        {embeddings[torch.eq(labels,5)], '+'},
-        {embeddings[torch.eq(labels,6)], '+'},
-        {embeddings[torch.eq(labels,7)], '+'},
-        {embeddings[torch.eq(labels,8)], '+'},
-        {embeddings[torch.eq(labels,9)], '+'},
+        {'0', embeddings:index(1,select(labels,0,indices)), '+'},
+        {'1', embeddings:index(1,select(labels,1,indices)), '+'},
+        {'2', embeddings:index(1,select(labels,2,indices)), '+'},
+        {'3', embeddings:index(1,select(labels,3,indices)), '+'},
+        {'4', embeddings:index(1,select(labels,4,indices)), '+'},
+        {'5', embeddings:index(1,select(labels,5,indices)), '+'},
+        {'6', embeddings:index(1,select(labels,6,indices)), '+'},
+        {'7', embeddings:index(1,select(labels,7,indices)), '+'},
+        {'8', embeddings:index(1,select(labels,8,indices)), '+'},
+        {'9', embeddings:index(1,select(labels,9,indices)), '+'}
     )
     gnuplot.xlabel('Activation of the 1st neuron')
     gnuplot.ylabel('Activation of the 2nd neuron')
@@ -243,7 +247,8 @@ do
     modelCopy:evaluate()
     trainEmbedding = getEmbedding(modelCopy, trainset)
     testEmbedding = getEmbedding(modelCopy, testset)
-
+    print(trainEmbedding:size())
+    print(testEmbedding:size())
     print('Plot Embeddings')
     gscatter(trainEmbedding, trainset.label, 'mnist-relu-train.png')
     gscatter(testEmbedding, testset.label, 'mnist-relu-test.png')
