@@ -38,13 +38,20 @@ print(testset.data[{1,{},{}}])
 local Convolution = cudnn.SpatialConvolution
 local Max = nn.SpatialMaxPooling
 local ReLU = cudnn.ReLU
-local PosSReLU = require './models/frelu/PosSReLU'
+require '../models/frelu/MyAdd'
+
+PosSReLU = function(val,inplace)
+   return nn.Sequential()
+      :add(ReLU(inplace))
+      :add(nn.MyAdd(1,val,inplace,nil))
+end
+
 convblock = function(ninput, noutput)
    return nn.Sequential()
       :add(Convolution(ninput,noutput,5,5,1,1,2,2))
-      :add(ReLU(true))
+      :add(ReLU(-1,true))
       :add(Convolution(noutput,noutput,5,5,1,1,2,2))
-      :add(ReLU(true))
+      :add(ReLU(-1,true))
       :add(Max(2,2,2,2,0,0))
 end
 
@@ -56,7 +63,7 @@ create_model = function()
     net:add(convblock(64,128))
     net:add(nn.View(3*3*128))
     net:add(nn.Linear(3*3*128,2))
-    net:add(PosSReLU(1, nil, -1, false, false))
+    net:add(PosSReLU(-1,false))
     net:add(nn.Linear(2,10))
 
     local function ConvInit(name)   

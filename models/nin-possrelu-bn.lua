@@ -14,7 +14,7 @@ require 'cunn'
 
 local Convolution = cudnn.SpatialConvolution
 local Avg = cudnn.SpatialAveragePooling
-local PosSReLU = require './glu/PosSReLU'
+local PosSReLU = require './frelu/PosSReLU'
 local Max = nn.SpatialMaxPooling
 local SBatchNorm = nn.SpatialBatchNormalization
 local Dropout = nn.Dropout
@@ -41,11 +41,11 @@ local function createModel(opt)
       model:add(Block(96,256,5,5,1,1,2,2)) -- conv2
       model:add(Block(256,256,1,1)) -- cccp3
       model:add(Block(256,256,1,1)) -- cccp4
-      model:add(Avg(3,3,2,2)) -- pool2
+      model:add(Max(3,3,2,2)) -- pool2
       model:add(Block(256,384,3,3,1,1,1,1)) -- conv3
       model:add(Block(384,384,1,1)) -- cccp5
       model:add(Block(384,384,1,1)) -- cccp6
-      model:add(Max(3,3,2,2)) -- pool3
+      model:add(Max(3,3,2,2):ceil()) -- pool3
       model:add(Dropout(0.5)) -- drop
       model:add(Block(384,1024,3,3,1,1,1,1)) -- conv4-1024
       model:add(Block(1024,1024,1,1)) -- cccp7-1024
@@ -65,7 +65,7 @@ local function createModel(opt)
       model:add(Block(96,192,5,5,1,1,2,2)) -- conv2
       model:add(Block(192,192,1,1)) -- cccp3
       model:add(Block(192,192,1,1)) -- cccp4
-      model:add(Avg(3,3,2,2):ceil()) -- pool2
+      model:add(Max(3,3,2,2):ceil()) -- pool2
       model:add(Dropout(0.5)) -- drop6
       model:add(Block(192,192,3,3,1,1,1,1)) -- conv3
       model:add(Block(192,192,1,1)) -- cccp5
@@ -85,7 +85,7 @@ local function createModel(opt)
       model:add(Block(96,192,5,5,1,1,2,2)) -- conv2
       model:add(Block(192,192,1,1)) -- cccp3
       model:add(Block(192,192,1,1)) -- cccp4
-      model:add(Avg(3,3,2,2):ceil()) -- pool2
+      model:add(Max(3,3,2,2):ceil()) -- pool2
       model:add(Dropout(0.5)) -- drop6
       model:add(Block(192,192,3,3,1,1,1,1)) -- conv3
       model:add(Block(192,192,1,1)) -- cccp5

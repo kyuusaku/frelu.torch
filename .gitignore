@@ -6,4 +6,5 @@ draw/dat/
 libnccl.so
 model_best.t7
 checkpoints
+checkpoints*
 .DS_Store
