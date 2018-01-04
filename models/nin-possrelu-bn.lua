@@ -32,7 +32,7 @@ local function createModel(opt)
    if opt.dataset == 'imagenet' then
       -- Configurations for imagenet:
       -- http://ethereon.github.io/netscope/#/preset/nin      
-      print(' | IN ImageNet')
+      print(' | NIN ImageNet')
       -- The NIN ImageNet model
       model:add(Block(3,96,11,11,4,4)) -- conv1
       model:add(Block(96,96,1,1)) -- cccp1
