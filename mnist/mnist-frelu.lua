@@ -43,15 +43,15 @@ require '../models/frelu/MyAdd'
 PosSReLU = function(val,inplace)
    return nn.Sequential()
       :add(ReLU(inplace))
-      :add(nn.MyAdd(1,val,inplace,nil))
+      :add(nn.MyAdd(1,val,1.0,false,0,inplace,nil))
 end
 
 convblock = function(ninput, noutput)
    return nn.Sequential()
       :add(Convolution(ninput,noutput,5,5,1,1,2,2))
-      :add(ReLU(-1,true))
+      :add(ReLU(true))
       :add(Convolution(noutput,noutput,5,5,1,1,2,2))
-      :add(ReLU(-1,true))
+      :add(ReLU(true))
       :add(Max(2,2,2,2,0,0))
 end
 

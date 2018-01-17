@@ -53,7 +53,7 @@ local function createModel(opt)
       local s = nn.Sequential()
       s:add(Convolution(nInputPlane,n,3,3,stride,stride,1,1))
       s:add(SBatchNorm(n))
-      s:add(PosSReLU(1))
+      s:add(PosSReLU(1,nil,-1,0.1,false,true,true))
       s:add(Convolution(n,n,3,3,1,1,1,1))
       s:add(SBatchNorm(n))
 
@@ -62,7 +62,7 @@ local function createModel(opt)
             :add(s)
             :add(shortcut(nInputPlane, n, stride)))
          :add(nn.CAddTable(true))
-         :add(PosSReLU(1))
+         :add(PosSReLU(1,nil,-1,0.1,false,true,true))
    end
 
    -- The bottleneck residual layer for 50, 101, and 152 layer networks
@@ -73,10 +73,10 @@ local function createModel(opt)
       local s = nn.Sequential()
       s:add(Convolution(nInputPlane,n,1,1,1,1,0,0))
       s:add(SBatchNorm(n))
-      s:add(PosSReLU(1))
+      s:add(PosSReLU(1,nil,-1,0.1,false,true,true))
       s:add(Convolution(n,n,3,3,stride,stride,1,1))
       s:add(SBatchNorm(n))
-      s:add(PosSReLU(1))
+      s:add(PosSReLU(1,nil,-1,0.1,false,true,true))
       s:add(Convolution(n,n*4,1,1,1,1,0,0))
       s:add(SBatchNorm(n * 4))
 
@@ -85,7 +85,7 @@ local function createModel(opt)
             :add(s)
             :add(shortcut(nInputPlane, n * 4, stride)))
          :add(nn.CAddTable(true))
-         :add(PosSReLU(1))
+         :add(PosSReLU(1,nil,-1,0.1,false,true,true))
    end
 
    -- Creates count residual blocks with specified number of features
@@ -117,7 +117,7 @@ local function createModel(opt)
       -- The ResNet ImageNet model
       model:add(Convolution(3,64,7,7,2,2,3,3))
       model:add(SBatchNorm(64))
-      model:add(PosSReLU(1))
+      model:add(PosSReLU(1,nil,-1,0.1,false,true,true))
       model:add(Max(3,3,2,2,1,1))
       model:add(layer(block, 64, def[1]))
       model:add(layer(block, 128, def[2], 2))

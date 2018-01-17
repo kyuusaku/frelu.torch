@@ -5,6 +5,6 @@ set -x
 set -e
 export PYTHONUNBUFFERED="True"
 
-LOG=./log/imagenet/$1-$2-resume.log
-th main.lua -netType $1 -depth $2 -nGPU $3 -nThreads $5 -batchSize 256 -data /home/lab/Dataset/ImageNet/ -save checkpoints-imagenet -resume checkpoints-imagenet \
+LOG=./log/imagenet/$1-$2-2-resume4.log
+th main.lua -netType $1 -depth $2 -nGPU $3 -nThreads $5 -batchSize 256 -data /home/lab/Dataset/ImageNet/ -save checkpoints-imagenet-$1-2 -resume checkpoints-imagenet-$1-2 \
 2>&1 | tee -i $LOG
