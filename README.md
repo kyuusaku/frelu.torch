@@ -69,6 +69,7 @@ Run the visulization experiment. Just `cd mnist` and `th *.lua`. FReLU may need 
 
 
 Model files table :
+
 | File                | Network                | ACT   |
 | ------------------- | ---------------------- | ----- |
 | resnet-possrelu     | Ori. bottleneck        | FReLU |
