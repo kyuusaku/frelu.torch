@@ -52,7 +52,6 @@ end
 
 function MyAdd:setNumInputDims(numInputDims)
    self.numInputDims = numInputDims
-   return self
 end
 
 function MyAdd:updateOutput(input)
