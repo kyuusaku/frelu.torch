@@ -5,7 +5,7 @@ set -x
 set -e
 export PYTHONUNBUFFERED="True"
 
-for (( i=4; i<5; i++ ))  
+for (( i=0; i<5; i++ ))  
 do  
 LOG=./log/cifar100/pelu-smallnet-possrelu-reproduce--1-seed$i.log
 th main.lua -dataset cifar100 -nGPU 1 -batchSize 128 -netType pelu-smallnet-possrelu -nEpochs 200 -LR 0.01 -manualSeed $i \
